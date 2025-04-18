@@ -80,17 +80,15 @@ func DeleteMessage(ctx *gin.Context) {
 		response.MkResponse(ctx, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
-
-	logs.Logger.Infof("[请求] 删除消息: id=%d", req.ID)
-
+	logs.Logger.Infof("[请求] 删除消息: message_id=%s, session_id=%s", req.MessageID, req.SessionID)
 	// 调用模型层删除消息
-	err := models.DeleteMessage(req.ID)
+	err := models.DeleteMessage(req.MessageID, req.SessionID)
 	if err != nil {
 		logs.Logger.Errorf("[错误] 删除消息失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, "删除消息失败", nil)
 		return
 	}
 
-	logs.Logger.Infof("[成功] 删除消息成功: id=%d", req.ID)
+	logs.Logger.Infof("[成功] 删除消息成功: message_id=%s", req.MessageID)
 	response.MkResponse(ctx, http.StatusOK, "删除消息成功", nil)
 }

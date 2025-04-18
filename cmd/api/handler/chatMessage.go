@@ -12,6 +12,7 @@ import (
 	"star_llm_backend_n/models"
 	"star_llm_backend_n/services"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -47,13 +48,23 @@ func ChatMessage(ctx *gin.Context) {
 	} else {
 		if chatInfo == nil {
 			chatName := query
-			if len(chatName) > 10 {
-				chatName = chatName[:10]
+			// 将字符串转换为rune切片以正确处理中文字符
+			runes := []rune(chatName)
+			if len(runes) > 10 {
+				chatName = string(runes[:10])
 			}
 			models.CreateChatInfo(&models.ChatInfo{
 				UserID:    user_id,
 				SessionID: session_id,
 				ChatName:  chatName,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			})
+		} else {
+			models.UpdateChatInfo(&models.ChatInfo{
+				SessionID: session_id,
+				ChatName:  chatInfo.ChatName,
+				UpdatedAt: time.Now(),
 			})
 		}
 	}

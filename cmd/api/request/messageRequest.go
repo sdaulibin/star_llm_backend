@@ -16,5 +16,6 @@ type UpdateCollectStatusRequest struct {
 }
 
 type DeleteMessageRequest struct {
-	ID int `json:"id" binding:"required"`
+	MessageID string `json:"message_id" binding:"required"`
+	SessionID string `json:"session_id" binding:"required"`
 }

@@ -30,7 +30,7 @@ func CreateChatInfo(chatInfo *ChatInfo) error {
 // GetChatInfoByID 通过ID获取对话信息
 func GetChatInfoBySessionId(session_id string) (*ChatInfo, error) {
 	var chatInfo ChatInfo
-	err := DB.Where("session_id = ?", session_id).First(&chatInfo).Error
+	err := DB.Where("session_id = ? AND is_delete = ?", session_id, false).First(&chatInfo).Error
 	if err != nil {
 		// 可以在这里判断是否是记录未找到的错误
 		if errors.Is(err, gorm.ErrRecordNotFound) {

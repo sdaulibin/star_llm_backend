@@ -74,8 +74,8 @@ func UpdateMessageByCurrentID(message *Message) error {
 }
 
 // DeleteMessage 逻辑删除消息（通过设置is_delete为true）
-func DeleteMessage(id int) error {
-	return DB.Model(&Message{}).Where("id = ?", id).Update("is_delete", true).Error
+func DeleteMessage(messageID, sessionID string) error {
+	return DB.Model(&Message{}).Where("message_id = ? AND session_id = ?", messageID, sessionID).Update("is_delete", true).Error
 }
 
 // GetMessagesByUserIDAndSessionID 获取用户特定会话的消息列表
