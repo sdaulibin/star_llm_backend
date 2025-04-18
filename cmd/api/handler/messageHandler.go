@@ -26,7 +26,7 @@ func GetMessages(ctx *gin.Context) {
 		getRequest.UserID, getRequest.SessionID, getRequest.Page, getRequest.PageSize)
 
 	// 调用模型层获取消息列表
-	messages, total, err := models.GetMessages(getRequest.UserID, getRequest.SessionID, getRequest.Page, getRequest.PageSize)
+	messages, total, err := models.GetMessages(getRequest.UserID, getRequest.SessionID, getRequest.Query, getRequest.Page, getRequest.PageSize)
 	if err != nil {
 		logs.Logger.Errorf("[错误] 获取消息列表失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, "获取消息列表失败", nil)
@@ -91,4 +91,41 @@ func DeleteMessage(ctx *gin.Context) {
 
 	logs.Logger.Infof("[成功] 删除消息成功: message_id=%s", req.MessageID)
 	response.MkResponse(ctx, http.StatusOK, "删除消息成功", nil)
+}
+
+// DeleteMessages 批量删除消息
+func DeleteMessages(ctx *gin.Context) {
+	// 解析请求体
+	deleteRequest := request.DeleteMessagesRequest{}
+	err := ctx.Bind(&deleteRequest)
+	if err != nil {
+		logs.Logger.Error("[错误] 解析批量删除消息请求体失败: %v", err)
+		response.MkResponse(ctx, http.StatusBadRequest, response.ParamInvalid, nil)
+		return
+	}
+
+	logs.Logger.Infof("[请求] 批量删除消息: 消息数量=%d, session_id=%s", len(deleteRequest.MessageIDs), deleteRequest.SessionID)
+
+	// 记录失败的消息ID
+	failedMessageIDs := []string{}
+
+	// 循环删除每个消息
+	for _, messageID := range deleteRequest.MessageIDs {
+		err := models.DeleteMessage(messageID, deleteRequest.SessionID)
+		if err != nil {
+			logs.Logger.Error("[错误] 删除消息ID=%s失败: %v", messageID, err)
+			failedMessageIDs = append(failedMessageIDs, messageID)
+		}
+	}
+
+	// 检查是否有删除失败的情况
+	if len(failedMessageIDs) > 0 {
+		response.MkResponse(ctx, http.StatusOK, "部分消息删除失败", gin.H{
+			"failed_message_ids": failedMessageIDs,
+		})
+		return
+	}
+
+	// 返回成功响应
+	response.MkResponse(ctx, http.StatusOK, response.Success, nil)
 }

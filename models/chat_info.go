@@ -52,10 +52,14 @@ func GetChatInfoByConversationID(conversationID string) (*ChatInfo, error) {
 }
 
 // GetChatInfosByUserID 获取用户的所有对话信息
-func GetChatInfos(userID string) ([]ChatInfo, error) {
+func GetChatInfos(userID, chatName string) ([]ChatInfo, error) {
 	var chatInfos []ChatInfo
-	err := DB.Where("user_id = ? AND is_delete = ?", userID, false).Order("updated_at DESC").Find(&chatInfos).Error
-	if err != nil {
+	db := DB.Where("user_id = ? AND is_delete = ?", userID, false)
+
+	if chatName != "" {
+		db = db.Where("chat_name like ?", "%"+chatName+"%")
+	}
+	if err := db.Order("updated_at DESC").Find(&chatInfos).Error; err != nil {
 		return nil, err
 	}
 	return chatInfos, nil

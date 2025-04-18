@@ -37,14 +37,17 @@ func Init() *gin.Engine {
 		difyApi.POST("chat-messages/:task_id/stop", handler.StopChatMessage)
 		difyApi.POST("chat-messages", handler.ChatMessage)
 		difyApi.GET("messages/:message_id/suggested", handler.Suggested)
+		// 对话管理相关接口
 		difyApi.POST("chat-info/create", handler.CreateChatInfo)
 		difyApi.POST("chat-info/get", handler.GetChatInfos)
 		difyApi.POST("chat-info/update", handler.UpdateChatInfo)
 		difyApi.POST("chat-info/delete", handler.DeleteChatInfo)
+		difyApi.POST("chat-infos/delete", handler.DeleteChatInfos)
 		// 消息管理相关接口
 		difyApi.POST("chat-messages/get", handler.GetMessages)
 		difyApi.POST("chat-messages/collect", handler.UpdateCollectStatus)
 		difyApi.POST("chat-messages/delete", handler.DeleteMessage)
+		difyApi.POST("chat-messagess/delete", handler.DeleteMessages)
 		// OA系统单点登录接口
 		difyApi.POST("oa/login", handler.VerifyOAToken)
 	}

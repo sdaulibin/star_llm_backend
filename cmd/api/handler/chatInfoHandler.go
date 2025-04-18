@@ -66,7 +66,7 @@ func GetChatInfos(ctx *gin.Context) {
 	logs.Logger.Infof("[提取] 获取用户对话信息: userID=%s", getRequest.UserID)
 
 	// 调用模型层获取用户所有对话信息
-	chatInfos, err := models.GetChatInfos(getRequest.UserID)
+	chatInfos, err := models.GetChatInfos(getRequest.UserID, getRequest.ChatName)
 	if err != nil {
 		logs.Logger.Error("[错误] 获取用户对话信息失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
@@ -136,6 +136,43 @@ func DeleteChatInfo(ctx *gin.Context) {
 	if err != nil {
 		logs.Logger.Error("[错误] 删除对话信息失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	// 返回成功响应
+	response.MkResponse(ctx, http.StatusOK, response.Success, nil)
+}
+
+// DeleteChatInfos 批量删除对话信息的请求
+func DeleteChatInfos(ctx *gin.Context) {
+	// 解析请求体
+	deleteRequest := request.DeleteChatInfosRequest{}
+	err := ctx.Bind(&deleteRequest)
+	if err != nil {
+		logs.Logger.Error("[错误] 解析批量删除对话信息请求体失败: %v", err)
+		response.MkResponse(ctx, http.StatusBadRequest, response.ParamInvalid, nil)
+		return
+	}
+
+	logs.Logger.Infof("[提取] 批量删除对话信息: 会话数量=%d", len(deleteRequest.SessionIDs))
+
+	// 记录失败的会话ID
+	failedSessionIDs := []string{}
+
+	// 循环删除每个会话
+	for _, sessionID := range deleteRequest.SessionIDs {
+		err := models.DeleteChatInfo(sessionID)
+		if err != nil {
+			logs.Logger.Error("[错误] 删除会话ID=%s失败: %v", sessionID, err)
+			failedSessionIDs = append(failedSessionIDs, sessionID)
+		}
+	}
+
+	// 检查是否有删除失败的情况
+	if len(failedSessionIDs) > 0 {
+		response.MkResponse(ctx, http.StatusOK, "部分会话删除失败", gin.H{
+			"failed_session_ids": failedSessionIDs,
+		})
 		return
 	}
 

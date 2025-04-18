@@ -79,7 +79,7 @@ func DeleteMessage(messageID, sessionID string) error {
 }
 
 // GetMessagesByUserIDAndSessionID 获取用户特定会话的消息列表
-func GetMessages(userID, sessionID string, page, pageSize int) ([]Message, int64, error) {
+func GetMessages(userID, sessionID, query string, page, pageSize int) ([]Message, int64, error) {
 	var messages []Message
 	var total int64
 
@@ -91,6 +91,9 @@ func GetMessages(userID, sessionID string, page, pageSize int) ([]Message, int64
 	}
 	if sessionID != "" {
 		db = db.Where("session_id = ?", sessionID)
+	}
+	if query != "" {
+		db = db.Where("query like ?", "%"+query+"%")
 	}
 
 	// 获取总记录数
