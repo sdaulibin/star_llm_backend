@@ -1,0 +1,26 @@
+debug_mode: true #是否处于Debug模式
+# Dify API配置
+api:
+  # Dify API的基础URL
+  base_url: "http://10.238.149.28:30000/"
+  # base_url: "http://localhost"
+  # Dify API的认证密钥
+  # key: "app-dRSe1A33PkkMZiXTp6JHrQdy"
+  # key: "app-CVmaUK0HDbPgzocvGfjSjN4R"
+  # key: "app-2gyyyTpDY8OFhXB1mFB1MO3F"
+  # dev
+  key: app-WM6ZwfOrPn90GTPLi12FkXGV
+
+# 服务器配置
+server:
+  # 服务器监听端口
+  port: "8091"
+
+# 数据库配置
+database:
+  host: "10.238.146.99"
+  port: "30434"
+  user: "postgres"
+  password: "ioadev123456"
+  dbname: "ioa"
+  sslmode: "disable"
