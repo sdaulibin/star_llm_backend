@@ -54,11 +54,12 @@ func ChatMessage(ctx *gin.Context) {
 				chatName = string(runes[:10])
 			}
 			models.CreateChatInfo(&models.ChatInfo{
-				UserID:    user_id,
-				SessionID: session_id,
-				ChatName:  chatName,
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
+				UserID:         user_id,
+				SessionID:      session_id,
+				ChatName:       chatName,
+				CreatedAt:      time.Now(),
+				UpdatedAt:      time.Now(),
+				ConversationID: uuid.Nil.String(),
 			})
 		} else {
 			models.UpdateChatInfo(&models.ChatInfo{
@@ -130,6 +131,19 @@ func ChatMessage(ctx *gin.Context) {
 				ctx.Writer.Write([]byte("data: " + string(data) + "\n\n"))
 				ctx.Writer.Flush()
 				logs.Logger.Infof("收到部分回答: %s\n", string(data))
+				chatInfo, err := models.GetChatInfoBySessionId(session_id)
+				if err != nil {
+					logs.Logger.Errorf("获取对话信息失败: %v", err)
+				} else {
+					if chatInfo != nil {
+						if chatInfo.ConversationID == "" {
+							models.UpdateChatInfo(&models.ChatInfo{
+								ConversationID: res_conversation_id,
+								UpdatedAt:      time.Now(),
+							})
+						}
+					}
+				}
 			}
 		} else if chunk.Event == "message_end" {
 			logs.Logger.Infof("消息结束，完整回答:\n%s\n", fullAnswer.String())

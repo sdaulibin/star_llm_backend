@@ -9,13 +9,14 @@ import (
 
 // ChatInfo 表示数据库中的对话信息记录
 type ChatInfo struct {
-	ID        int       `gorm:"primaryKey"`
-	UserID    string    `gorm:"size:10"`
-	SessionID string    `gorm:"type:uuid;not null"`
-	ChatName  string    `gorm:"size:255;not null"`
-	IsDelete  bool      `gorm:"default:false;not null"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	ID             int       `gorm:"primaryKey"`
+	UserID         string    `gorm:"size:10"`
+	SessionID      string    `gorm:"type:uuid;not null"`
+	ConversationID string    `gorm:"type:uuid"`
+	ChatName       string    `gorm:"size:255;not null"`
+	IsDelete       bool      `gorm:"default:false;not null"`
+	CreatedAt      time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	UpdatedAt      time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 }
 
 func (ChatInfo) TableName() string {

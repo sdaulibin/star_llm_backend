@@ -141,13 +141,19 @@ func (client *Client) SendChatMessageStream(ctx context.Context, chatMessageRequ
 }
 
 // StopChatMessage 停止正在进行的聊天消息生成
-func (client *Client) StopChatMessage(ctx context.Context, task_id string) error {
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/v1/chat-messages/%s/stop", client.BaseURL, task_id), nil)
+func (client *Client) StopChatMessage(ctx context.Context, stopRequest request.StopRequest, task_id string) error {
+	// Create an empty JSON body instead of nil
+	reqBody, err := json.Marshal(stopRequest)
+	if err != nil {
+		return fmt.Errorf("序列化请求失败: %w", err)
+	}
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/v1/chat-messages/%s/stop", client.BaseURL, task_id), bytes.NewBuffer(reqBody))
 	if err != nil {
 		return fmt.Errorf("创建请求失败: %w", err)
 	}
 
 	httpReq.Header.Set("Authorization", "Bearer "+client.APIKey)
+	httpReq.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.HTTPClient.Do(httpReq)
 	if err != nil {

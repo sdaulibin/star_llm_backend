@@ -97,7 +97,7 @@ func FileUpload(ctx *gin.Context) {
 	log.Printf("[文件上传] 文件已保存到本地: %s", localFilePath)
 
 	// 转发文件到Dify
-	apiPath := strings.TrimPrefix(ctx.Request.URL.Path, "/chat/api/")
+	apiPath := "v1/files/upload"
 	difyURL := config.GlobalConfig.API.BaseURL + apiPath
 	log.Printf("[文件上传] 地址: %s", difyURL)
 

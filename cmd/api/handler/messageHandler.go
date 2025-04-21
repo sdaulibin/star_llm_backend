@@ -6,13 +6,13 @@ import (
 	"star_llm_backend_n/cmd/api/response"
 	"star_llm_backend_n/logs"
 	"star_llm_backend_n/models"
+	"star_llm_backend_n/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 // GetMessages 获取消息列表
 func GetMessages(ctx *gin.Context) {
-	// 解析请求参数
 	// 解析请求参数
 	getRequest := request.GetMessagesRequest{}
 	err := ctx.Bind(&getRequest)
@@ -25,8 +25,8 @@ func GetMessages(ctx *gin.Context) {
 	logs.Logger.Infof("[请求] 获取消息列表: user_id=%s, session_id=%s, page=%d, page_size=%d",
 		getRequest.UserID, getRequest.SessionID, getRequest.Page, getRequest.PageSize)
 
-	// 调用模型层获取消息列表
-	messages, total, err := models.GetMessages(getRequest.UserID, getRequest.SessionID, getRequest.Query, getRequest.Page, getRequest.PageSize)
+	// 调用服务层获取消息列表并转换为MessageResponse格式
+	messages, total, err := services.GetMessages(getRequest.UserID, getRequest.SessionID, getRequest.Query, getRequest.Page, getRequest.PageSize)
 	if err != nil {
 		logs.Logger.Errorf("[错误] 获取消息列表失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, "获取消息列表失败", nil)

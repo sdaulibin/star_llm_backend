@@ -10,3 +10,4 @@ CREATE TABLE chat_info (
 );
 
 ALTER TABLE chat_info ADD COLUMN is_delete boolean DEFAULT false NOT NULL;
+ALTER TABLE chat_info ADD COLUMN conversation_id uuid NULL;

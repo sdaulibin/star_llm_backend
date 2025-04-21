@@ -37,6 +37,7 @@ func StopChatMessage(ctx *gin.Context) {
 	// 转发反馈到Dify
 	err = difyClient.StopChatMessage(
 		ctx.Request.Context(),
+		stopRequest,
 		task_id,
 	)
 
