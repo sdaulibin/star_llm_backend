@@ -24,3 +24,5 @@ database:
   password: "ioadev123456"
   dbname: "ioa"
   sslmode: "disable"
+oa:
+  url: http://oa.qdccb.cn:8080/peimc-customization/login/verifyIMGHToken

@@ -26,6 +26,9 @@ type Config struct {
 		DBName   string `yaml:"dbname"`
 		SSLMode  string `yaml:"sslmode"`
 	} `yaml:"database"`
+	OA struct {
+		Url string `yaml:"url"`
+	} `yaml:"oa"`
 }
 
 var GlobalConfig *Config

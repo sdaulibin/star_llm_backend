@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"star_llm_backend_n/cmd/api/request"
 	"star_llm_backend_n/cmd/api/response"
+	"star_llm_backend_n/config"
 	"star_llm_backend_n/logs"
 
 	"github.com/gin-gonic/gin"
@@ -24,9 +25,8 @@ func VerifyOAToken(ctx *gin.Context) {
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
-	logs.Logger.Infof("OA系统的token认证请求: %s\n", string(request))
 	// 创建 HTTP 请求
-	httpReq, err := http.NewRequest("POST", "http://oa.qdccb.cn:8080/peimc-customization/login/verifyIMGHToken", bytes.NewBuffer(request))
+	httpReq, err := http.NewRequest("POST", config.GlobalConfig.OA.Url, bytes.NewBuffer(request))
 	if err != nil {
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
@@ -36,6 +36,7 @@ func VerifyOAToken(ctx *gin.Context) {
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	// 发送请求
+	logs.Logger.Infof("发送OA系统的token认证请求: %s\n", string(request))
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)
 	if err != nil {
