@@ -64,7 +64,7 @@ func ChatMessage(ctx *gin.Context) {
 		} else {
 			models.UpdateChatInfo(&models.ChatInfo{
 				SessionID: session_id,
-				ChatName:  chatInfo.ChatName,
+				ChatName:  chatInfo.ChatName, // 使用当前查询作为聊天名称
 				UpdatedAt: time.Now(),
 			})
 		}
@@ -81,9 +81,10 @@ func ChatMessage(ctx *gin.Context) {
 			}
 		}
 	}
+	logs.Logger.Infof("[提取] 文件ID: %s", file_id)
 	// 检查是否需要保存消息到数据库
 	if query != "" {
-		err := services.SaveMessageToDB(current_id, session_id, query, "", user_id, conversation_id, uuid.Nil.String(), file_id)
+		err := services.SaveMessageToDB(current_id, session_id, query, "", user_id, conversation_id, file_id, uuid.Nil.String())
 		if err != nil {
 			logs.Logger.Error("[错误] 保存对话消息到数据库失败: %v", err)
 		}
@@ -136,8 +137,10 @@ func ChatMessage(ctx *gin.Context) {
 					logs.Logger.Errorf("获取对话信息失败: %v", err)
 				} else {
 					if chatInfo != nil {
-						if chatInfo.ConversationID == "" {
+						if chatInfo.ConversationID == uuid.Nil.String() {
 							models.UpdateChatInfo(&models.ChatInfo{
+								SessionID:      chatInfo.SessionID,
+								ChatName:       chatInfo.ChatName, // 保留原有的聊天名称
 								ConversationID: res_conversation_id,
 								UpdatedAt:      time.Now(),
 							})

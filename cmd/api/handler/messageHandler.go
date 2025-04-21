@@ -26,7 +26,7 @@ func GetMessages(ctx *gin.Context) {
 		getRequest.UserID, getRequest.SessionID, getRequest.Page, getRequest.PageSize)
 
 	// 调用服务层获取消息列表并转换为MessageResponse格式
-	messages, total, err := services.GetMessages(getRequest.UserID, getRequest.SessionID, getRequest.Query, getRequest.Page, getRequest.PageSize)
+	messages, total, err := services.GetMessages(getRequest, getRequest.Page, getRequest.PageSize)
 	if err != nil {
 		logs.Logger.Errorf("[错误] 获取消息列表失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, "获取消息列表失败", nil)

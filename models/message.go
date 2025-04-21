@@ -2,7 +2,10 @@ package models
 
 import (
 	"log"
+	"star_llm_backend_n/cmd/api/request"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // Message 表示数据库中的消息记录
@@ -79,21 +82,24 @@ func DeleteMessage(messageID, sessionID string) error {
 }
 
 // GetMessagesByUserIDAndSessionID 获取用户特定会话的消息列表
-func GetMessages(userID, sessionID, query string, page, pageSize int) ([]Message, int64, error) {
+func GetMessages(getMessagesRequest request.GetMessagesRequest, page, pageSize int) ([]Message, int64, error) {
 	var messages []Message
 	var total int64
 
 	offset := (page - 1) * pageSize
 
 	db := DB.Model(&Message{}).Where("is_delete = ?", false)
-	if userID != "" {
-		db = db.Where("user_id = ?", userID)
+	if getMessagesRequest.UserID != "" {
+		db = db.Where("user_id = ?", getMessagesRequest.UserID)
 	}
-	if sessionID != "" {
-		db = db.Where("session_id = ?", sessionID)
+	if getMessagesRequest.SessionID != "" {
+		db = db.Where("session_id = ?", getMessagesRequest.SessionID)
 	}
-	if query != "" {
-		db = db.Where("query like ?", "%"+query+"%")
+	if getMessagesRequest.Query != "" {
+		db = db.Where("query like ?", "%"+getMessagesRequest.Query+"%")
+	}
+	if getMessagesRequest.IsCollect == true {
+		db = db.Where("is_collect =?", getMessagesRequest.IsCollect)
 	}
 
 	// 获取总记录数
@@ -112,4 +118,14 @@ func GetMessages(userID, sessionID, query string, page, pageSize int) ([]Message
 // UpdateCollectStatus 更新消息的收藏状态
 func UpdateCollectStatus(messageID, sessionID string, isCollect bool) error {
 	return DB.Model(&Message{}).Where("message_id = ? AND session_id = ?", messageID, sessionID).Update("is_collect", isCollect).Error
+}
+
+// DeleteMessagesBySessionID 根据SessionID逻辑删除所有相关消息
+func DeleteMessagesBySessionID(sessionID string) error {
+	return DeleteMessagesBySessionIDWithTx(DB, sessionID)
+}
+
+// DeleteMessagesBySessionIDWithTx 支持事务的按会话ID删除消息方法
+func DeleteMessagesBySessionIDWithTx(tx *gorm.DB, sessionID string) error {
+	return tx.Model(&Message{}).Where("session_id = ?", sessionID).Update("is_delete", true).Error
 }

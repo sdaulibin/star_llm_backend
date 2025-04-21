@@ -5,6 +5,7 @@ type GetMessagesRequest struct {
 	UserID    string `json:"user_id" form:"user_id" binding:"required"`
 	SessionID string `json:"session_id" form:"session_id"`
 	Query     string `json:"query"`
+	IsCollect bool   `json:"is_collect"`
 	Page      int    `json:"page" form:"page" binding:"required,min=1"`
 	PageSize  int    `json:"page_size" form:"page_size" binding:"required,min=1,max=1000"`
 }

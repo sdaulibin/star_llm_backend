@@ -6,6 +6,7 @@ import (
 	"star_llm_backend_n/cmd/api/response"
 	"star_llm_backend_n/logs"
 	"star_llm_backend_n/models"
+	"star_llm_backend_n/services"
 	"strings"
 	"time"
 
@@ -129,10 +130,10 @@ func DeleteChatInfo(ctx *gin.Context) {
 		return
 	}
 
-	logs.Logger.Infof("[提取] 删除对话信息: ID=%d", deleteRequest.SessionID)
+	logs.Logger.Infof("[提取] 删除对话信息: ID=%s", deleteRequest.SessionID)
 
-	// 调用模型层删除对话信息
-	err = models.DeleteChatInfo(deleteRequest.SessionID)
+	// 调用服务层删除对话信息及相关消息
+	err = services.DeleteChatInfo(deleteRequest.SessionID)
 	if err != nil {
 		logs.Logger.Error("[错误] 删除对话信息失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
@@ -156,17 +157,8 @@ func DeleteChatInfos(ctx *gin.Context) {
 
 	logs.Logger.Infof("[提取] 批量删除对话信息: 会话数量=%d", len(deleteRequest.SessionIDs))
 
-	// 记录失败的会话ID
-	failedSessionIDs := []string{}
-
-	// 循环删除每个会话
-	for _, sessionID := range deleteRequest.SessionIDs {
-		err := models.DeleteChatInfo(sessionID)
-		if err != nil {
-			logs.Logger.Error("[错误] 删除会话ID=%s失败: %v", sessionID, err)
-			failedSessionIDs = append(failedSessionIDs, sessionID)
-		}
-	}
+	// 调用服务层批量删除对话信息及相关消息
+	failedSessionIDs, err := services.DeleteChatInfos(deleteRequest.SessionIDs)
 
 	// 检查是否有删除失败的情况
 	if len(failedSessionIDs) > 0 {

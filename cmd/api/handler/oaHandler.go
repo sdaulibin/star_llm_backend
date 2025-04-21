@@ -24,8 +24,9 @@ func VerifyOAToken(ctx *gin.Context) {
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
+	logs.Logger.Infof("OA系统的token认证请求: %s\n", string(request))
 	// 创建 HTTP 请求
-	httpReq, err := http.NewRequest("POST", "https://oa.qdccb.cn:8080/peimc-customization/login/verifyIMGHToken", bytes.NewBuffer(request))
+	httpReq, err := http.NewRequest("POST", "http://oa.qdccb.cn:8080/peimc-customization/login/verifyIMGHToken", bytes.NewBuffer(request))
 	if err != nil {
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return

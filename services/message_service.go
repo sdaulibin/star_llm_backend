@@ -4,7 +4,9 @@ import (
 	"log"
 	"time"
 
+	"star_llm_backend_n/cmd/api/request"
 	"star_llm_backend_n/cmd/api/response"
+	"star_llm_backend_n/logs"
 	"star_llm_backend_n/models"
 
 	"github.com/google/uuid"
@@ -81,12 +83,13 @@ func ConvertMessageToResponse(message *models.Message) *response.MessageResponse
 }
 
 // GetMessagesWithResponse 获取消息列表并转换为 MessageResponse 格式
-func GetMessages(userID, sessionID, query string, page, pageSize int) ([]response.MessageResponse, int64, error) {
+func GetMessages(getMessagesRequest request.GetMessagesRequest, page, pageSize int) ([]response.MessageResponse, int64, error) {
 	// 调用 models 包中的 GetMessages 方法获取消息列表
-	messages, total, err := models.GetMessages(userID, sessionID, query, page, pageSize)
+	messages, total, err := models.GetMessages(getMessagesRequest, page, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}
+	logs.Logger.Infof("[服务] 获取消息列表messages: %v", messages)
 
 	// 转换为 MessageResponse 格式
 	responseMessages := make([]response.MessageResponse, 0, len(messages))
@@ -112,10 +115,11 @@ func GetMessages(userID, sessionID, query string, page, pageSize int) ([]respons
 				}
 				msgResponse.File = append(msgResponse.File, fileJSON)
 			}
+			logs.Logger.Infof("[服务] 获取文件信息: %s,%v\n", file.FileID, file)
 		}
 
 		responseMessages = append(responseMessages, *msgResponse)
 	}
-
+	logs.Logger.Infof("[服务] 获取消息列表responseMessages: %v", responseMessages)
 	return responseMessages, total, nil
 }

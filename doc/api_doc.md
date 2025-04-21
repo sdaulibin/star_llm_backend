@@ -583,6 +583,50 @@ curl -X POST http://localhost:8080/sllb/api/chat-messages/delete \
 }
 ```
 
+### 13. 批量删除消息
+
+**请求方法**: POST
+
+**URL**: `/sllb/api/chat-messagess/delete`
+
+**处理函数**: `handler.DeleteMessages`
+
+**请求体**:
+```json
+{
+  "message_ids": ["msg1", "msg2"],
+  "session_id": "session456"
+}
+```
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| message_ids | array | 是 | 消息ID数组 |
+| session_id | string | 是 | 会话ID |
+
+**curl调用示例**:
+```bash
+curl -X POST http://localhost:8080/sllb/api/chat-messagess/delete \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message_ids": ["msg1", "msg2"],
+    "session_id": "session456"
+  }'
+```
+
+**响应格式**:
+
+成功响应:
+```json
+{
+  "code": 200,
+  "result": "success",
+  "data": null
+}
+
+
 ### 13. OA系统单点登录
 
 **请求方法**: POST

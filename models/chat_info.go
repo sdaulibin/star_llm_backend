@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"star_llm_backend_n/logs"
 	"time"
 
 	"gorm.io/gorm"
@@ -25,7 +26,24 @@ func (ChatInfo) TableName() string {
 
 // CreateChatInfo 创建新的对话信息
 func CreateChatInfo(chatInfo *ChatInfo) error {
-	return DB.Create(chatInfo).Error
+	logs.Logger.Infof("[创建] 创建对话信息: session_id=%s, chat_info=%v\n", chatInfo.SessionID, chatInfo)
+	// 确保ChatName字段不为空
+	if chatInfo.ChatName == "" {
+		logs.Logger.Warn("[警告] 创建对话信息时ChatName为空")
+		chatInfo.ChatName = "新对话"
+	}
+
+	// 创建记录
+	err := DB.Create(chatInfo).Error
+
+	// 验证创建后的记录
+	if err == nil {
+		var savedChat ChatInfo
+		DB.Where("session_id = ?", chatInfo.SessionID).First(&savedChat)
+		logs.Logger.Infof("[创建] 保存后的对话信息: session_id=%s, chat_name=%s\n", savedChat.SessionID, savedChat.ChatName)
+	}
+
+	return err
 }
 
 // GetChatInfoByID 通过ID获取对话信息
@@ -68,15 +86,22 @@ func GetChatInfos(userID, chatName string) ([]ChatInfo, error) {
 
 // UpdateChatInfo 更新对话信息
 func UpdateChatInfo(chatInfo *ChatInfo) error {
+	logs.Logger.Infof("[更新] 更新对话信息: session_id=%s, chat_info=%v\n", chatInfo.SessionID, chatInfo)
 	return DB.Model(&ChatInfo{}).Where("session_id = ?", chatInfo.SessionID).Updates(map[string]interface{}{
-		"chat_name":  chatInfo.ChatName,
-		"updated_at": chatInfo.UpdatedAt,
+		"chat_name":       chatInfo.ChatName,
+		"updated_at":      chatInfo.UpdatedAt,
+		"conversation_id": chatInfo.ConversationID,
 	}).Error
 }
 
 // DeleteChatInfo 删除对话信息（逻辑删除）
 func DeleteChatInfo(session_id string) error {
-	return DB.Model(&ChatInfo{}).Where("session_id = ?", session_id).Updates(map[string]interface{}{
+	return DeleteChatInfoWithTx(DB, session_id)
+}
+
+// DeleteChatInfoWithTx 支持事务的删除聊天信息方法
+func DeleteChatInfoWithTx(tx *gorm.DB, session_id string) error {
+	return tx.Model(&ChatInfo{}).Where("session_id = ?", session_id).Updates(map[string]interface{}{
 		"is_delete":  true,
 		"updated_at": time.Now(),
 	}).Error
