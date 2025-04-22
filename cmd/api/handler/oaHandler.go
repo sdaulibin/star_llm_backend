@@ -2,12 +2,15 @@ package handler
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"star_llm_backend_n/cmd/api/request"
 	"star_llm_backend_n/cmd/api/response"
 	"star_llm_backend_n/config"
 	"star_llm_backend_n/logs"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +22,11 @@ func VerifyOAToken(ctx *gin.Context) {
 		response.MkResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
+
+	// 对username进行MD5加密并转换为大写
+	hash := md5.Sum([]byte(req.Username))
+	req.Username = hex.EncodeToString(hash[:])
+	req.Username = strings.ToUpper(req.Username)
 
 	request, err := json.Marshal(req)
 	if err != nil {
