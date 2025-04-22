@@ -80,9 +80,9 @@ func DeleteMessage(ctx *gin.Context) {
 		response.MkResponse(ctx, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
-	logs.Logger.Infof("[请求] 删除消息: message_id=%s, session_id=%s", req.MessageID, req.SessionID)
+	logs.Logger.Infof("[请求] 删除消息: message_id=%s", req.MessageID)
 	// 调用模型层删除消息
-	err := models.DeleteMessage(req.MessageID, req.SessionID)
+	err := models.DeleteMessageByMsgId(req.MessageID)
 	if err != nil {
 		logs.Logger.Errorf("[错误] 删除消息失败: %v", err)
 		response.MkResponse(ctx, http.StatusInternalServerError, "删除消息失败", nil)
@@ -104,14 +104,14 @@ func DeleteMessages(ctx *gin.Context) {
 		return
 	}
 
-	logs.Logger.Infof("[请求] 批量删除消息: 消息数量=%d, session_id=%s", len(deleteRequest.MessageIDs), deleteRequest.SessionID)
+	logs.Logger.Infof("[请求] 批量删除消息: 消息数量=%d", len(deleteRequest.MessageIDs))
 
 	// 记录失败的消息ID
 	failedMessageIDs := []string{}
 
 	// 循环删除每个消息
 	for _, messageID := range deleteRequest.MessageIDs {
-		err := models.DeleteMessage(messageID, deleteRequest.SessionID)
+		err := models.DeleteMessageByMsgId(messageID)
 		if err != nil {
 			logs.Logger.Error("[错误] 删除消息ID=%s失败: %v", messageID, err)
 			failedMessageIDs = append(failedMessageIDs, messageID)

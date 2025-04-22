@@ -81,6 +81,11 @@ func DeleteMessage(messageID, sessionID string) error {
 	return DB.Model(&Message{}).Where("message_id = ? AND session_id = ?", messageID, sessionID).Update("is_delete", true).Error
 }
 
+// DeleteMessage 逻辑删除消息（通过设置is_delete为true）
+func DeleteMessageByMsgId(messageID string) error {
+	return DB.Model(&Message{}).Where("message_id = ?", messageID).Update("is_delete", true).Error
+}
+
 // GetMessagesByUserIDAndSessionID 获取用户特定会话的消息列表
 func GetMessages(getMessagesRequest request.GetMessagesRequest, page, pageSize int) ([]Message, int64, error) {
 	var messages []Message

@@ -19,11 +19,9 @@ type UpdateCollectStatusRequest struct {
 
 type DeleteMessageRequest struct {
 	MessageID string `json:"message_id" binding:"required"`
-	SessionID string `json:"session_id" binding:"required"`
 }
 
 // DeleteMessagesRequest 批量删除消息的请求参数
 type DeleteMessagesRequest struct {
 	MessageIDs []string `json:"message_ids" binding:"required"`
-	SessionID  string   `json:"session_id" binding:"required"`
 }
