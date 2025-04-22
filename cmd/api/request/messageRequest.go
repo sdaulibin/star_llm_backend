@@ -14,7 +14,7 @@ type GetMessagesRequest struct {
 type UpdateCollectStatusRequest struct {
 	MessageID string `json:"message_id" binding:"required"`
 	SessionID string `json:"session_id" binding:"required"`
-	IsCollect bool   `json:"is_collect""`
+	IsCollect bool   `json:"is_collect"`
 }
 
 type DeleteMessageRequest struct {
